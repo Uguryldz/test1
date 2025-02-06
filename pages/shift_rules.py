@@ -8,7 +8,7 @@ import os
 def get_database_connection():
     return psycopg2.connect(os.environ["DATABASE_URL"])
 
-st.title("Vardiya Kuralları Yönetimi")
+st.title("Shift Kuralları")
 
 # Tab oluştur
 tab1, tab2, tab3 = st.tabs(["Genel Kurallar", "Lokasyon Kuralları", "Özel Durumlar"])

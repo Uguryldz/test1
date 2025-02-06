@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("Vardiya Planlama Sistemi")
+st.title("Anasayfa")
 
 # Session state initialization
 if 'employees' not in st.session_state:

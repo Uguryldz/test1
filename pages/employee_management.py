@@ -65,13 +65,11 @@ def add_employee():
         name = st.text_input("İsim")
         location = st.selectbox("Lokasyon", ["Amasya-1", "Amasya 2-A", "Amasya 2-B", "Amasya 3"])
         hire_date = st.date_input("İşe Giriş Tarihi")
-        shift_start_date = st.date_input("Vardiya Başlangıç Tarihi") #Added
+        shift_start_date = st.date_input("Vardiya Başlangıç Tarihi")
         special_condition = st.selectbox(
             "Özel Durum",
             ["Yok", "Hamile", "Engelli", "Doğum Sonrası"]
         )
-        start_time = st.time_input("Vardiya Başlangıç Saati") #Added
-        end_time = st.time_input("Vardiya Bitiş Saati") #Added
 
         if st.form_submit_button("Çalışan Ekle"):
             new_employee = {
@@ -82,9 +80,7 @@ def add_employee():
                 'special_condition': special_condition if special_condition != "Yok" else None,
                 'service_route': location,
                 'hire_date': hire_date,
-                'shift_start_date': shift_start_date, #Added
-                'start_time': start_time, #Added
-                'end_time': end_time #Added
+                'shift_start_date': shift_start_date
             }
 
             st.session_state.employees = pd.concat([

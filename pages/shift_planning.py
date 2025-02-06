@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 
-st.title("Vardiya Planlama")
+st.title("Shift Planlama")
 
 # Database connection
 def get_database_connection():

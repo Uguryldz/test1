@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 
-st.title("Vardiya Tipleri Yönetimi")
+st.title("Vardiya Planlaması")
 
 # Database connection
 def get_database_connection():
