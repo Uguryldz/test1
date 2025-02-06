@@ -16,33 +16,11 @@ def get_database_connection():
 # Initialize optimizer
 optimizer = AdvancedShiftOptimizer()
 
-# Date selection - Only allow Mondays
-today = datetime.now().date()
-default_monday = today + timedelta(days=(0 - today.weekday()))
+# Date selection
 planning_date = st.date_input(
-    "Planlama Başlangıç Tarihi (Sadece Pazartesi)",
-    value=default_monday,
-    min_value=today
+    "Planlama Başlangıç Tarihi",
+    min_value=datetime.now().date()
 )
-
-# Check if selected date is Monday
-if planning_date.weekday() != 0:
-    st.error("Vardiya planlaması sadece Pazartesi günü için yapılabilir!")
-    st.stop()
-
-# Check for existing shifts in selected week
-week_end = planning_date + timedelta(days=7)
-with get_database_connection() as conn:
-    with conn.cursor() as cur:
-        cur.execute("""
-            SELECT COUNT(*) FROM employee_shifts 
-            WHERE shift_date >= %s AND shift_date < %s
-        """, (planning_date, week_end))
-        existing_shifts = cur.fetchone()[0]
-
-if existing_shifts > 0:
-    st.error("Bu hafta için vardiya planı zaten oluşturulmuş!")
-    st.stop()
 
 # Create weekly schedule button
 if st.button("Haftalık Vardiya Planı Oluştur"):
