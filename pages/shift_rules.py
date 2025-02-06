@@ -45,9 +45,17 @@ with tab2:
     )
     
     with st.form("lokasyon_kurallari"):
-        min_morning = st.number_input("Minimum Sabah Vardiyası Personeli", min_value=1, value=3)
         has_service = st.checkbox("Servis Var", value=True)
-        service_time = st.time_input("Servis Saati") if has_service else None
+        if has_service:
+            service_shifts = st.multiselect(
+                "Servis Olan Vardiyalar",
+                ["08:00-17:00", "09:00-18:00", "11:00-20:00", "15:00-00:00"],
+                default=["08:00-17:00", "09:00-18:00"]
+            )
+            service_time = st.time_input("Servis Saati")
+        else:
+            service_shifts = []
+            service_time = None
         weekend_policy = st.selectbox(
             "Hafta Sonu Politikası",
             ["Normal Mesai", "Home Office", "Kapalı"]
