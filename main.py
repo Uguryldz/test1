@@ -47,6 +47,14 @@ with col2:
 # Quick view of current week's shifts
 st.subheader("Bu Haftanın Vardiyaları")
 if len(st.session_state.shifts) > 0:
-    st.dataframe(st.session_state.shifts)
+    # Sort shifts by date
+    sorted_shifts = st.session_state.shifts.sort_values('date')
+    
+    # Format the date column
+    sorted_shifts['date'] = pd.to_datetime(sorted_shifts['date']).dt.strftime('%d/%m/%Y')
+    
+    # Reorder columns to move date to the right
+    columns = ['employee_id', 'shift_type', 'start_time', 'end_time', 'date']
+    st.dataframe(sorted_shifts[columns])
 else:
     st.info("Henüz vardiya planı oluşturulmamış.")
