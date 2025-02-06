@@ -94,10 +94,34 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
     # Format dates
     shift_table['İşe Giriş'] = pd.to_datetime(shift_table['İşe Giriş']).dt.strftime('%d/%m/%Y')
 
+    # Get available shift types from database
+    with get_database_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT DISTINCT shift_name FROM shift_types ORDER BY shift_name")
+            shift_types = [row['shift_name'] for row in cur.fetchall()]
+            shift_types.append('OFF')  # Add OFF option
+            
+    # Create column configuration for data editor
+    column_config = {
+        'İsim - Soyisim': st.column_config.TextColumn(disabled=True),
+        'İşe Giriş': st.column_config.TextColumn(disabled=True),
+        'Yaka': st.column_config.TextColumn(disabled=True),
+        'employee_id': st.column_config.TextColumn(disabled=True)
+    }
+    
+    # Add configuration for date columns
+    for col in shift_table.columns:
+        if col not in ['İsim - Soyisim', 'İşe Giriş', 'Yaka', 'employee_id']:
+            column_config[col] = st.column_config.SelectboxColumn(
+                'Vardiya',
+                options=shift_types,
+                required=True
+            )
+
     edited_df = st.data_editor(
         shift_table,
-        use_container_width=True,
-        disabled=['İsim - Soyisim', 'İşe Giriş', 'Yaka', 'employee_id']
+        column_config=column_config,
+        use_container_width=True
     )
 
     if st.button("Vardiya Değişikliklerini Kaydet"):
