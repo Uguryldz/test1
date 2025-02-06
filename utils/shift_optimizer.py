@@ -16,7 +16,19 @@ class ShiftOptimizer:
 
         # Lokasyon bazlı kısıtlamalar
         self.location_constraints = {
-            'Amasya': {
+            'Amasya-1': {
+                'allowed_shifts': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
+                'min_morning_staff': 3
+            },
+            'Amasya 2-A': {
+                'allowed_shifts': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
+                'min_morning_staff': 3
+            },
+            'Amasya 2-B': {
+                'allowed_shifts': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
+                'min_morning_staff': 3
+            },
+            'Amasya 3': {
                 'allowed_shifts': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
                 'min_morning_staff': 3
             },
@@ -111,12 +123,10 @@ class ShiftOptimizer:
 
     def _check_location_constraints(self, employee: pd.Series, shift_type: str, date: datetime) -> bool:
         """Lokasyon bazlı kısıtlamaları kontrol et"""
+        if employee['location'] not in self.location_constraints:
+            return False
+
         location_shifts = self.location_constraints[employee['location']]['allowed_shifts']
-
-        if employee['location'] == 'İstanbul':
-            if date.weekday() in [5, 6]:  # Cumartesi ve Pazar
-                return False
-
         return shift_type in location_shifts
 
     def _check_eleven_hour_rule(self, employee_id: int, schedule: List[Dict], 
