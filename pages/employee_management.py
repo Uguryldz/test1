@@ -23,12 +23,12 @@ TURKISH_SURNAMES = [
 def generate_random_employees(count=50):
     employees = []
 
-    # Amasya service routes
-    amasya_routes = ["Amasya-1", "Amasya-2A", "Amasya-2B", "Amasya-3"]
+    # Amasya locations
+    amasya_locations = ["Amasya-1", "Amasya 2-A", "Amasya 2-B", "Amasya 3"]
 
     for i in range(count):
-        # Random location with 60% Amasya, 40% Istanbul distribution
-        location = random.choice(["Amasya", "İstanbul"] * 30 + ["Amasya"] * 20)
+        # Random location distribution
+        location = random.choice(amasya_locations)
 
         # Generate name
         name = f"{random.choice(TURKISH_NAMES)} {random.choice(TURKISH_SURNAMES)}"
@@ -43,9 +43,9 @@ def generate_random_employees(count=50):
             'id': i + 1,
             'name': name,
             'location': location,
-            'district': "Anadolu" if location == "İstanbul" and random.random() > 0.5 else "Avrupa" if location == "İstanbul" else None,
+            'district': None,  # Only for Istanbul
             'special_condition': special_condition,
-            'service_route': random.choice(amasya_routes) if location == "Amasya" else None,
+            'service_route': location,  # Using location as service route
             'hire_date': datetime.now()
         }
 
@@ -63,27 +63,21 @@ if st.button("50 Rastgele Çalışan Ekle") and len(st.session_state.employees) 
 def add_employee():
     with st.form("new_employee"):
         name = st.text_input("İsim")
-        location = st.selectbox("Lokasyon", ["Amasya", "İstanbul"])
-
-        district = None
-        if location == "İstanbul":
-            district = st.selectbox("Bölge", ["Anadolu", "Avrupa"])
+        location = st.selectbox("Lokasyon", ["Amasya-1", "Amasya 2-A", "Amasya 2-B", "Amasya 3"])
 
         special_condition = st.selectbox(
             "Özel Durum",
             ["Yok", "Hamile", "Engelli", "Doğum Sonrası"]
         )
 
-        service_route = st.text_input("Servis Güzergahı")
-
         if st.form_submit_button("Çalışan Ekle"):
             new_employee = {
                 'id': len(st.session_state.employees) + 1,
                 'name': name,
                 'location': location,
-                'district': district,
+                'district': None,
                 'special_condition': special_condition if special_condition != "Yok" else None,
-                'service_route': service_route,
+                'service_route': location,
                 'hire_date': datetime.now()
             }
 
