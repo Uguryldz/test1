@@ -46,9 +46,9 @@ if st.button("Haftalık Vardiya Planı Oluştur"):
                     with conn.cursor() as cur:
                         for _, shift in weekly_schedule.iterrows():
                             cur.execute("""
-                                INSERT INTO employee_shifts (employee_id, shift_type_id, shift_date)
-                                VALUES (%s, %s, %s)
-                            """, (shift['employee_id'], shift['shift_type'], shift['date']))
+                                INSERT INTO employee_shifts (employee_id, shift_type_id, shift_date, start_time, end_time)
+                                VALUES (%s, %s, %s, %s, %s)
+                            """, (shift['employee_id'], shift['shift_type'], shift['date'], shift['start_time'], shift['end_time']))
                     conn.commit()
 
                 st.success("Haftalık vardiya planı oluşturuldu!")
@@ -76,8 +76,8 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
     # Create pivot table
     shift_table = pd.pivot_table(
         display_data,
-        values='shift_type',
-        index=['name', 'hire_date', 'location'],
+        values=['shift_type', 'start_time', 'end_time'],
+        index=['name', 'hire_date', 'location', 'employee_id'],
         columns='Tarih',
         aggfunc='first',
         fill_value='OFF'
@@ -94,13 +94,35 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
     # Format dates
     shift_table['İşe Giriş'] = pd.to_datetime(shift_table['İşe Giriş']).dt.strftime('%d/%m/%Y')
 
-    # Display table with color coding
-    st.dataframe(
-        shift_table.style.applymap(
-            lambda x: 'background-color: #e6ffe6' if x != 'OFF' else 'background-color: #ffe6e6'
-        ),
-        use_container_width=True
+    edited_df = st.data_editor(
+        shift_table,
+        use_container_width=True,
+        disabled=['İsim - Soyisim', 'İşe Giriş', 'Yaka', 'employee_id']
     )
+
+    if st.button("Vardiya Değişikliklerini Kaydet"):
+        try:
+            with get_database_connection() as conn:
+                with conn.cursor() as cur:
+                    for _, row in edited_df.iterrows():
+                        for date_col in edited_df.columns[4:]:  # Skip the first 4 columns (name, hire_date, location, employee_id)
+                            if row[date_col] != 'OFF':
+                                cur.execute("""
+                                    UPDATE employee_shifts 
+                                    SET shift_type = %s,
+                                        start_time = %s,
+                                        end_time = %s
+                                    WHERE employee_id = %s 
+                                    AND shift_date = %s
+                                """, (row[date_col], row[f'start_time'][date_col], row[f'end_time'][date_col], 
+                                     row['employee_id'], datetime.strptime(date_col, '%d/%m/%Y')))
+                conn.commit()
+            st.success("Vardiya değişiklikleri kaydedildi!")
+        except Exception as e:
+            st.error(f"Hata oluştu: {str(e)}")
+
+else:
+    st.info("Henüz vardiya planı oluşturulmamış.")
 
     # Excel download button
     def to_excel(df):
@@ -116,5 +138,3 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
         file_name=f'vardiya_plani_{planning_date.strftime("%d_%m_%Y")}.xlsx',
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-else:
-    st.info("Henüz vardiya planı oluşturulmamış.")
