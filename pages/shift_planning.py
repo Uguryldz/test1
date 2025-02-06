@@ -41,13 +41,18 @@ if st.button("Haftalık Vardiya Planı Oluştur"):
                 # Store in session state
                 st.session_state.shifts = weekly_schedule
 
-                # Save to database
+                # Save to database, preserve existing shifts
                 with get_database_connection() as conn:
                     with conn.cursor() as cur:
                         for _, shift in weekly_schedule.iterrows():
+                            # Check if shift already exists
                             cur.execute("""
                                 INSERT INTO employee_shifts (employee_id, shift_type_id, shift_date, start_time, end_time)
-                                VALUES (%s, %s, %s, %s, %s)
+                                ON CONFLICT (employee_id, shift_date) DO UPDATE 
+                                SET shift_type_id = EXCLUDED.shift_type_id,
+                                    start_time = EXCLUDED.start_time,
+                                    end_time = EXCLUDED.end_time
+                                WHERE employee_shifts.shift_date >= CURRENT_DATE
                             """, (shift['employee_id'], shift['shift_type'], shift['date'], shift['start_time'], shift['end_time']))
                     conn.commit()
 
@@ -100,7 +105,7 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
             cur.execute("SELECT DISTINCT shift_name FROM shift_types ORDER BY shift_name")
             shift_types = [row['shift_name'] for row in cur.fetchall()]
             shift_types.append('OFF')  # Add OFF option
-            
+
     # Create column configuration for data editor
     column_config = {
         'İsim - Soyisim': st.column_config.TextColumn(disabled=True),
@@ -108,7 +113,7 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
         'Yaka': st.column_config.TextColumn(disabled=True),
         'employee_id': st.column_config.TextColumn(disabled=True)
     }
-    
+
     # Add configuration for date columns
     for col in shift_table.columns:
         if col not in ['İsim - Soyisim', 'İşe Giriş', 'Yaka', 'employee_id']:
