@@ -3,33 +3,43 @@ import numpy as np
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from collections import defaultdict
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import os
 from utils.config import SHIFT_CONFIG, SPECIAL_CONDITIONS, SERVICE_RULES
 
 class AdvancedShiftOptimizer:
     def __init__(self):
-        self.shift_counts = defaultdict(lambda: defaultdict(int))  # Çalışan bazlı vardiya sayaçları
-        self.location_groups = defaultdict(list)  # Yaka bazlı çalışan grupları
+        self.shift_counts = defaultdict(lambda: defaultdict(int))
+        self.location_groups = defaultdict(list)
         self.config = SHIFT_CONFIG
+        self.conn = psycopg2.connect(os.environ["DATABASE_URL"])
 
-        # Vardiya gereksinimleri - configden al
+        # Veritabanından vardiya tiplerini al
+        self.load_shift_requirements()
+
+    def load_shift_requirements(self):
+        """Veritabanından vardiya gereksinimlerini yükle"""
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM shift_types")
+            shift_types = cur.fetchall()
+
         self.shift_requirements = {
-            '08:00-17:00': self.config['min_staff']['morning'],
-            '09:00-18:00': self.config['min_staff']['afternoon'],
-            '11:00-22:00': self.config['min_staff']['evening'],
-            '15:00-00:00': self.config['min_staff']['evening'],
-            '00:00-08:00': self.config['min_staff']['night']
+            f"{row['start_time'].strftime('%H:%M')}-{row['end_time'].strftime('%H:%M')}": row['min_staff']
+            for row in shift_types
         }
 
-        # Lokasyon bazlı vardiyalar
-        self.location_shifts = {
-            'Amasya-1': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
-            'Amasya 2-A': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
-            'Amasya 2-B': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
-            'Amasya 3': ['08:00-17:00', '09:00-18:00', '11:00-22:00']
-        }
+        # Lokasyon bazlı vardiyaları güncelle
+        self.location_shifts = defaultdict(list)
+        for row in shift_types:
+            shift_time = f"{row['start_time'].strftime('%H:%M')}-{row['end_time'].strftime('%H:%M')}"
+            self.location_shifts[row['location']].append(shift_time)
 
     def initialize_groups(self, employees_df: pd.DataFrame):
         """Çalışanları yakalarına göre grupla"""
+        # Giriş tarihine göre sırala
+        employees_df = employees_df.sort_values('hire_date')
+
         for location in self.location_shifts.keys():
             self.location_groups[location] = employees_df[
                 employees_df['location'] == location
@@ -38,18 +48,18 @@ class AdvancedShiftOptimizer:
     def calculate_shift_score(self, employee: pd.Series, shift_type: str, 
                             date: datetime, current_schedule: pd.DataFrame,
                             current_shift_employees: List[int]) -> float:
-        """
-        Vardiya ataması için gelişmiş skor hesaplama
-        """
+        """Vardiya ataması için gelişmiş skor hesaplama"""
         score = 0.0
 
-        # Temel uygunluk kontrolü
         if not self._is_shift_allowed(employee, shift_type, date):
             return -1000.0
 
-        # 11 saat kuralı kontrolü
         if not self._check_eleven_hour_rule(employee['id'], current_schedule, shift_type, date):
             return -1000.0
+
+        # Çalışan giriş tarihi bazlı skor (daha eski çalışanlara öncelik)
+        hire_date_score = self._calculate_hire_date_score(employee['hire_date'])
+        score += hire_date_score * 0.3
 
         # Yaka bazlı grup skoru (aynı yakadan çalışanları tercih et)
         location_score = self._calculate_location_group_score(
@@ -57,7 +67,7 @@ class AdvancedShiftOptimizer:
             employee['location'],
             current_shift_employees
         )
-        score += location_score * 0.3
+        score += location_score * 0.2
 
         # Vardiya dağılımı dengesi skoru
         distribution_score = self._calculate_distribution_score(
@@ -82,7 +92,14 @@ class AdvancedShiftOptimizer:
         )
         score += peak_score * 0.2
 
+
         return score
+
+    def _calculate_hire_date_score(self, hire_date: datetime) -> float:
+        """Çalışanın kıdemine göre skor hesapla"""
+        days_employed = (datetime.now() - hire_date).days
+        # Kıdem arttıkça skor azalır (yeni başlayanların vardiya sayısını dengelemek için)
+        return 1.0 / (1.0 + np.log1p(days_employed))
 
     def _calculate_service_score(self, location: str, shift_type: str, 
                                current_employees: List[int]) -> float:

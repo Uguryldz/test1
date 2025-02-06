@@ -18,7 +18,8 @@ if 'employees' not in st.session_state:
         'location': [],
         'special_condition': [],
         'district': [],
-        'service_route': []
+        'service_route': [],
+        'hire_date': [] # Added hire_date column
     })
 
 if 'shifts' not in st.session_state:
@@ -44,6 +45,8 @@ with col2:
         st.switch_page("pages/employee_management.py")
     if st.button("Vardiya Planla"):
         st.switch_page("pages/shift_planning.py")
+    if st.button("Vardiya Tipleri"): # Added Shift Types button
+        st.switch_page("pages/shift_types.py")
     if st.button("Vardiya Kuralları"):
         st.switch_page("pages/shift_rules.py")
 
