@@ -1,15 +1,13 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
-from utils.shift_validator import ShiftValidator
-from utils.shift_optimizer import ShiftOptimizer
+from utils.advanced_optimizer import AdvancedShiftOptimizer
 from io import BytesIO
 
 st.title("Vardiya Planlama")
 
-# Initialize validator and optimizer
-validator = ShiftValidator()
-optimizer = ShiftOptimizer()
+# Initialize optimizer
+optimizer = AdvancedShiftOptimizer()
 
 # Date selection
 planning_date = st.date_input(
@@ -22,19 +20,20 @@ if st.button("Haftalık Vardiya Planı Oluştur"):
     if len(st.session_state.employees) == 0:
         st.error("Önce çalışan ekleyin!")
     else:
-        # Convert date to datetime
-        start_datetime = datetime.combine(planning_date, datetime.min.time())
+        with st.spinner('Vardiya planı oluşturuluyor...'):
+            # Convert date to datetime
+            start_datetime = datetime.combine(planning_date, datetime.min.time())
 
-        # Create weekly schedule
-        weekly_schedule = optimizer.create_weekly_schedule(
-            st.session_state.employees,
-            start_datetime
-        )
+            # Create weekly schedule using advanced optimizer
+            weekly_schedule = optimizer.optimize_weekly_schedule(
+                st.session_state.employees,
+                start_datetime
+            )
 
-        # Store in session state
-        st.session_state.shifts = weekly_schedule
+            # Store in session state
+            st.session_state.shifts = weekly_schedule
 
-        st.success("Haftalık vardiya planı oluşturuldu!")
+            st.success("Haftalık vardiya planı oluşturuldu!")
 
 # Display current schedule
 if len(st.session_state.shifts) > 0:
