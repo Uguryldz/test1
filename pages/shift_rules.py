@@ -52,10 +52,8 @@ with tab2:
                 ["08:00-17:00", "09:00-18:00", "11:00-20:00", "15:00-00:00"],
                 default=["08:00-17:00", "09:00-18:00"]
             )
-            service_time = st.time_input("Servis Saati")
         else:
             service_shifts = []
-            service_time = None
         weekend_policy = st.selectbox(
             "Hafta Sonu Politikası",
             ["Normal Mesai", "Home Office", "Kapalı"]
@@ -69,7 +67,7 @@ with tab2:
                             UPDATE location_rules SET 
                             min_morning_staff = %s,
                             has_service = %s,
-                            service_time = %s,
+                            
                             weekend_policy = %s
                             WHERE location = %s
                         """, (min_morning, has_service, service_time, weekend_policy, location))
