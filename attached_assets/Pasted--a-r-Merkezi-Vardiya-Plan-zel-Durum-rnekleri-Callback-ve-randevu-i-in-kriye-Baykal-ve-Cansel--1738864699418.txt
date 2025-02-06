@@ -1,0 +1,22 @@
+Çağrı Merkezi Vardiya Planı Özel Durum Örnekleri
+Callback ve randevu için Şükriye Baykal ve Cansel Akça sabit sabah vardiyasına yazılacaktır.
+Diğer dört İstanbul agent'ından biri veya ikisi mutlaka 15:00 vardiyasında olmalı ya da iki kişi sabah, iki kişi akşam vardiyasında olmalıdır.
+Yaka ayrımına göre vardiya yazılacak; örneğin bu hafta servis Anadolu yakasında ise 15:00 girişli Avrupa yakası agent'ı olmamalıdır. Zorunlu durumlarda home office seçeneği değerlendirilecektir.
+Tüme'de gündüz ve ara vardiyasında konumlandırılacak agent sayısına dikkat edilmelidir.
+Cansel ve İlhan’ın iç serviste (08:00 - 17:00) dış servise geçişte sorun yaşayabileceğinden ayda bir hafta ara vardiyasına yazılmasına özen gösterilmelidir.
+ Yeni başlayan agent ilk iki hafta boyunca ara ve gece vardiyasına yazılmayacak, ilk bir ayda ise gece vardiyasına dahil edilmeyecektir.
+Backoffice vardiyası ayrı tutulmalı; 2 gündüz ve 1 ara vardiya planlanmalıdır.
+Ahmet'in özel durumu nedeniyle vardiya revizyonlarına dahil edilmeyecektir. Haftalık çalışma süresi 45 saati aşmamalı ve sağlık durumu nedeniyle gece vardiyasına yazılmamalıdır.
+Melike'ye yalnızca gündüz vardiyası yazılacak ve günlük çalışma süresi kesinlikle 7,5 saati aşmayacaktır. Revizyonlara dahil edilmeyecektir.
+İrem, Şerif ve Serpil'e ekstra bir off kullandırılmıştır (bu durum mail ile bildirilmiştir).
+Gebze ve Tuzla aynı döngüde olmalıdır (servis maliyetini azaltmak amacıyla); öncelik SL riskinin korunmasıdır.
+Aydın’a internet sorunu nedeniyle Mart-Nisan ayına kadar gece vardiyası yazılmamalıdır. (19 Şubat itibarıyla gece evden çalışabileceğini iletmiştir.)
+Backoffice ekibindeki agent'ların off günleri aynı güne denk gelmemelidir. Sabahta en az bir gündüz ve bir ara BO agent bulunmalıdır.
+Selda'ya herkes tek off olduğunda bir ekstra off verilecektir (1 Nisan haftasında verilmiştir).
+Ceren kalite dinlemeleri için sabah vardiyasına yazılacaktır.
+Şükriye Baykal ve Cansel Akça servis durumu nedeniyle aynı vardiyaya yazılmalıdır.
+Zülal belirli bir süre gündüz vardiyasında yer almalıdır.
+Şifanur Aylak Kurt hamilelik nedeniyle yalnızca gündüz vardiyasında bulunacaktır.
+ Melike doğumdan sonra bir yıl boyunca yalnızca gündüz vardiyasında çalışacaktır.
+Kampanya durumlarında vardiya planlarındaki saatlerde değişiklikler yapılabilir.
+Amaysa vardiya guzergah bazlı ve TL ile beraber yazılmıs olmalıdır. Mesela Caner'in ekıbınde cogunluk 11:00-22:00 ıse Caner de 11:00 - 22:00 vardıyasında calısıyor ya da Gulnıhal'ın ekıı guzergah bazlı vardıyayı yazdıgımızda 15:00-00:00 denk gelıyor cogunlugu , Gulnıhal'de yine 15:00 vardıyasına gelecek

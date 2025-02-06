@@ -1,0 +1,36 @@
+Vardiya planında çalışan eklenme veya işten çıkma durumları için parametrik yapı kurulmalıdır.	Değişken
+Amasya ve İstanbul lokasyonları ayrı ayrı değerlendirilir. Amasya ve İstanbul’daki, vardiya tipleri ve servis güzergahları farklılıklar gösterdiğinden, her lokasyon için özel filtreleme yapılır. “Yaka” sütunundan ilgili lokasyonlar filtrelenir.
+ • Amasya -> Amasya 1, Amasya 2-A, Amasya 2-B, Amasya 3
+ • İstanbul -> Anadolu, Avrupa 	Değişken
+Amasya ve İstanbul’daki, vardiya tipleri farklılıklar göstermektedir.
+ • Amasya -> (08:00-17:00,   09:00-18:00, 11:00-22:00)
+ • İstanbul -> (08:00-17:00,   15:00:00-00:00)	Değişken
+Gece vardiyası (00:00-08:00) çalışanlar tarafından genellikle tercih edilmediği için bunun planı farklı yapılmaktadır. Gece vardiyasında , ikinci bir değişiklik olana kadar minimum 3 kişi bulundurmalıyız ve bunlardan biri 27 Kasım'da alınan karara gore İstanbul'dan olmalıdır. Sırayla tüm çalışanlar özel durumu olan çalışanlar hariç gece vardiyası çalışmalıdır. Bir hafta gece vardiyasında çalışanı en az iki hafta gece vardiyasına yazılmamalı!	Sabit
+Yönetim kararı ile İstanbul da Cumartesi ve Pazar herkes Home Office çalışacaktır.	Değişken
+Pazar günü İstanbul vardiyası olmayacak, herkes OFF alacaktır.	Değişken
+İstanbul da 08:00-17:00 vardiyasında çalışanlar için Anadolu ve Avrupa farketmeksizin servis bulunmaktadır. Eskiden servis Anadolu'da ise Avrupa'da 15:00-00.00 vardiya yazılmamalıdır ya da servis Avrupa'da ise Anadolu'da 15:00-00.00 vardiya yazılmamalıydı. Ardından, 15:00-00:00 vardiyaları için Home Office çalışmaya geçildi. Son durumda İstanbul'da ınb&onb vardiyası sadece 08:00-17:00 olmasına karar verildi.	Değişken
+Amasya da akşam 20:00'den sonra olan vardiyalar için servis hizmeti bulunmaktadır. Amasya da akşam 20:00'den önce servis hizmeti sunulmamaktadır. Planlama yapılırken servis güzergahlarına ve yol maliyetlerine dikat edilmelidir.	Sabit
+Bir personele bir yıl içinde maksimum 270 saat fazla mesai yazılabilir, fazla mesai süresi bir yıl toplamında 270 saati geçemez.	Sabit
+Geçmiş hafta verileri, mevcut haftanın vardiya planını oluştururken kullanılır. Bu veri, bir önceki haftalarda hangi vardiya saatlerinin kullanıldığını kontrol etmek için gereklidir. Yeni bir haftanın vardiya saati seçilirken önceki haftalarda kullanılmayan vardiya saati seçilip onun uygulanması gerekiyor.	Sabit
+Amasya lokasyonlarında vardiya planı oluştururken minimum 3-4 kişi sabah 08:00-17:00 olacak şekilde planlanmalıdır.	Sabit
+Mevzuat gereği, bir çalışanın vardiya çıkışı ile bir sonraki vardiyaya girişi arasında minimum 11 saat geçmiş olmalıdır. Örneğin bir önceki haftanın planında Pazar günü 00:00 çıkışlı olan çalışanlar yeni planın Pazartesi gününde 08:00 ya da 09:00 olmamalıdır. Ya da Amasya'da 11:00-22:00 çalışıp ertesi gün 08:00 girişli çalışan olmamalıdır.(11 SAAT KURALI)	Sabit
+Bir çalışanın tek bir vardiya çalışma süresi 11 saati geçmemelidir.	Sabit
+Mevzuat gereği, her çalışan haftada bir zorunlu dinlenme günü (OFF) almalıdır. Mevzuatın zorunlu tuttuğu OFF, 7 günde 1 OFF olacak şekilde Z planı ile yerleştirilir.	Sabit
+Banka kararları doğrultusunda ise, çalışanlara ikinci bir OFF verilir. Bu OFF günleri, çalışanların talepleri doğrultusunda ya da banka tarafından belirlenerek verilmelidir. "Vardiya Talep" Excel dosyasına Çarşamba günü saat 12:00'a kadar çalışanların OFF talepleri girilir. İlgili kişinin talep ettiği OFF günü ONAY almış ise ilgili güne OFF konur.	Sabit
+Haftalık OFF sayısının kontrol edilmesi gerekir. Bir çalışan için haftalık 2 OFF, 7 günde 1 OFF zorunludur. OFF’ların girişi yapıldıktan sonra OFF sütunundan kişinin haftalık kaç OFF’u olduğunun kontrolü yapılır. Bir kişinin haftalık OFF sayısı 2 olmalıdır. OFF sayısı 1 ya da 3 ise düzenleme yapılması gerekmektedir.	Sabit
+Çalışanlardan 3 OFF birleştiren var mı kontrolü yapılır. Yani Pazar günü OFF olup Pazartesi ve Salı da OFF olan var mı ya da Cumartesi ve Pazar OFF olup yeni hafta da Pazartesi OFF olan var mı?	Sabit
+Amasya da Hayatpay de çift OFF almalıdır ama aynı gün OFF olamamaları gerekmektedir. Sabah ve akşam en az bir kişinin mutlaka vardiyası olmalıdır.	Değişken
+Amasya, İstanbul ve Genel olarak "Toplam Planlanan"  vardiya periodlarının dağılımı kontrol edilmelidir. Şuan da Pazartesi gününden Pazar gününe “Toplam Planlanan” sayılarının azalan formda olmasına dikkat edilmektedir. Ama bu durum Micro Startegy den alınan "Vardiya Sayıları Raporu" ndaki son 3 aylık bilgilere göre yoğunluk tahminlenen günlerdeki çalışan sayılarına göre planlanması gerekmektedir. Yoğunluk tahminlenen günlerde çalışan sayısı fazla olacak şekilde planlama yapılması gerekmektedir.	Değişken
+Amasya planında "Çakışan Vardiya Sayısı" maksimum günlük vardiya saysısı 45'i geçmemelidir.	Sabit
+Aynı tarihte işe giren çalışanların Off dağılımında genel ortalamada + / - 2 fark olabilir.	Sabit
+"Sabah", "Ara", "Akşam" ve "Gece" vardiya çalışma oranlarının kontrol edilmesi gerekmektedir. 
+ •  "Sabah" vardiya çalışma oranı ....
+ •   "Ara" vardiya çalışma oranı %50'nin üstünde kimse olmamalıdır.
+ •   "Akşam" vardiya çalışma oranı .....
+ •   "Gece" vardiya çalışma oranı ....	Sabit
+Kalite ekibi gündüz vardiyalarında çalışmalıdır.	Değişken
+28 Ağustos 2024 kararı üzerine, "Yılık İzin" talebi 1 haftayı komple kapatıyorsa Pazar tek OFF, diğer 6 gün "Yıllık İzin" olacak şekilde talep alınır. Bir ya da örneğin iki gün "Yıllık İzin" talebi olursa kişinin tek OFF u varsa tek OFF+ "Yıllık İzin" olarak karşılanır ama o hafta çift OFF varsa  yine de çift OFF + "Yıllık İzin" talebi karşılanır.	Sabit
+Özel Durumları olan çalışanlar için (Engelli/Hamile vb.) çalışacaklarını vardiyalar kurallaştırılması yapa paramterik bir Excel oluşturulması gerekmektedir.
+ • Hamile olan çalışanlara (Funda Çetintaş, Şifanur Aylak Kurt) hamile vardiyası (09:00-18:00) yazılması gerekmektedir.
+ • Doğumdan sonra çalışan çalışanlar (Melike) 1 yıl boyunca gündüz vardiyasında çalışmalıdır.
+ • Engelli olan çalışanlara haftalık 45 saati geçmeyecek şekilde vardiya planı yazılır, vardiya revizelerine dahil edilmez ve ayrıca gece vardiyası verilmez.	Değişken
