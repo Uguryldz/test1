@@ -31,6 +31,18 @@ if 'shifts' not in st.session_state:
         'end_time': []
     })
 
+# Sidebar menu
+with st.sidebar:
+    st.subheader("Ana Menü")
+    if st.button("Çalışan Yönetimi"):
+        st.switch_page("pages/employee_management.py")
+    if st.button("Shift Planlama"):
+        st.switch_page("pages/shift_planning.py")
+    if st.button("Vardiya Planlaması"): 
+        st.switch_page("pages/shift_types.py")
+    if st.button("Shift Kuralları"):
+        st.switch_page("pages/shift_rules.py")
+
 # Main dashboard
 col1, col2 = st.columns(2)
 
@@ -40,15 +52,9 @@ with col1:
     st.metric("Aktif Vardiya", len(st.session_state.shifts))
 
 with col2:
-    st.subheader("Hızlı Erişim")
-    if st.button("Çalışan Yönetimi"):
-        st.switch_page("pages/employee_management.py")
-    if st.button("Vardiya Planla"):
-        st.switch_page("pages/shift_planning.py")
-    if st.button("Vardiya Tipleri"): # Added Shift Types button
-        st.switch_page("pages/shift_types.py")
-    if st.button("Vardiya Kuralları"):
-        st.switch_page("pages/shift_rules.py")
+    st.subheader("Hızlı İstatistikler")
+    st.write("Bugünkü Vardiya Sayısı: ", len(st.session_state.shifts))
+    st.write("Aktif Çalışan Sayısı: ", len(st.session_state.employees))
 
 # Quick view of current week's shifts
 st.subheader("Bu Haftanın Vardiyaları")
