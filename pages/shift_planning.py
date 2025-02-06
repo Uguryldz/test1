@@ -3,8 +3,15 @@ import pandas as pd
 from datetime import datetime, timedelta
 from utils.advanced_optimizer import AdvancedShiftOptimizer
 from io import BytesIO
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import os
 
 st.title("Vardiya Planlama")
+
+# Database connection
+def get_database_connection():
+    return psycopg2.connect(os.environ["DATABASE_URL"])
 
 # Initialize optimizer
 optimizer = AdvancedShiftOptimizer()
@@ -21,22 +28,35 @@ if st.button("Haftalık Vardiya Planı Oluştur"):
         st.error("Önce çalışan ekleyin!")
     else:
         with st.spinner('Vardiya planı oluşturuluyor...'):
-            # Convert date to datetime
-            start_datetime = datetime.combine(planning_date, datetime.min.time())
+            try:
+                # Convert date to datetime
+                start_datetime = datetime.combine(planning_date, datetime.min.time())
 
-            # Create weekly schedule using advanced optimizer
-            weekly_schedule = optimizer.optimize_weekly_schedule(
-                st.session_state.employees,
-                start_datetime
-            )
+                # Create weekly schedule using advanced optimizer
+                weekly_schedule = optimizer.optimize_weekly_schedule(
+                    st.session_state.employees,
+                    start_datetime
+                )
 
-            # Store in session state
-            st.session_state.shifts = weekly_schedule
+                # Store in session state
+                st.session_state.shifts = weekly_schedule
 
-            st.success("Haftalık vardiya planı oluşturuldu!")
+                # Save to database
+                with get_database_connection() as conn:
+                    with conn.cursor() as cur:
+                        for _, shift in weekly_schedule.iterrows():
+                            cur.execute("""
+                                INSERT INTO employee_shifts (employee_id, shift_type_id, shift_date)
+                                VALUES (%s, %s, %s)
+                            """, (shift['employee_id'], shift['shift_type'], shift['date']))
+                    conn.commit()
+
+                st.success("Haftalık vardiya planı oluşturuldu!")
+            except Exception as e:
+                st.error(f"Vardiya planı oluşturulurken hata: {str(e)}")
 
 # Display current schedule
-if len(st.session_state.shifts) > 0:
+if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
     st.subheader("Vardiya Planı")
 
     # Get employee information
@@ -74,8 +94,13 @@ if len(st.session_state.shifts) > 0:
     # Format dates
     shift_table['İşe Giriş'] = pd.to_datetime(shift_table['İşe Giriş']).dt.strftime('%d/%m/%Y')
 
-    # Display table
-    st.dataframe(shift_table, use_container_width=True)
+    # Display table with color coding
+    st.dataframe(
+        shift_table.style.applymap(
+            lambda x: 'background-color: #e6ffe6' if x != 'OFF' else 'background-color: #ffe6e6'
+        ),
+        use_container_width=True
+    )
 
     # Excel download button
     def to_excel(df):
@@ -91,6 +116,5 @@ if len(st.session_state.shifts) > 0:
         file_name=f'vardiya_plani_{planning_date.strftime("%d_%m_%Y")}.xlsx',
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-
 else:
     st.info("Henüz vardiya planı oluşturulmamış.")
