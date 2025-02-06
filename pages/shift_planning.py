@@ -18,11 +18,15 @@ optimizer = AdvancedShiftOptimizer()
 
 # Date selection - Only allow Mondays
 today = datetime.now().date()
-default_monday = today + timedelta(days=(0 - today.weekday()))
+default_monday = today + timedelta(days=(7 - today.weekday()))
+if default_monday < today:
+    default_monday += timedelta(days=7)
+
 planning_date = st.date_input(
     "Planlama Başlangıç Tarihi (Sadece Pazartesi)",
     value=default_monday,
-    min_value=today
+    min_value=today,
+    max_value=today + timedelta(days=365)
 )
 
 # Check if selected date is Monday
