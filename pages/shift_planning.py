@@ -76,7 +76,7 @@ if hasattr(st.session_state, 'shifts') and not st.session_state.shifts.empty:
     # Create pivot table
     shift_table = pd.pivot_table(
         display_data,
-        values=['shift_type', 'start_time', 'end_time'],
+        values='shift_type',
         index=['name', 'hire_date', 'location', 'employee_id'],
         columns='Tarih',
         aggfunc='first',

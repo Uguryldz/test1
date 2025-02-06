@@ -47,14 +47,35 @@ with col2:
 # Quick view of current week's shifts
 st.subheader("Bu Haftanın Vardiyaları")
 if len(st.session_state.shifts) > 0:
-    # Sort shifts by date
-    sorted_shifts = st.session_state.shifts.sort_values('date')
+    # Get employee information and merge with shifts
+    display_data = st.session_state.shifts.merge(
+        st.session_state.employees[['id', 'name', 'location', 'hire_date']],
+        left_on='employee_id',
+        right_on='id'
+    )
     
-    # Format the date column
-    sorted_shifts['date'] = pd.to_datetime(sorted_shifts['date']).dt.strftime('%d/%m/%Y')
+    # Format dates
+    display_data['date'] = pd.to_datetime(display_data['date']).dt.strftime('%d/%m/%Y')
+    display_data['hire_date'] = pd.to_datetime(display_data['hire_date']).dt.strftime('%d/%m/%Y')
     
-    # Reorder columns to move date to the right
-    columns = ['employee_id', 'shift_type', 'start_time', 'end_time', 'date']
-    st.dataframe(sorted_shifts[columns])
+    # Create pivot table
+    shift_table = pd.pivot_table(
+        display_data,
+        values='shift_type',
+        index=['name', 'hire_date', 'location'],
+        columns='date',
+        aggfunc='first',
+        fill_value='OFF'
+    ).reset_index()
+    
+    # Rename columns
+    shift_table.columns.name = None
+    shift_table = shift_table.rename(columns={
+        'name': 'İsim - Soyisim',
+        'hire_date': 'İşe Giriş',
+        'location': 'Yaka'
+    })
+    
+    st.dataframe(shift_table, use_container_width=True)
 else:
     st.info("Henüz vardiya planı oluşturulmamış.")
