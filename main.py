@@ -31,18 +31,6 @@ if 'shifts' not in st.session_state:
         'end_time': []
     })
 
-# Sidebar menu
-with st.sidebar:
-    st.subheader("Ana Menü")
-    if st.button("Çalışan Yönetimi"):
-        st.switch_page("pages/employee_management.py")
-    if st.button("Shift Planlama"):
-        st.switch_page("pages/shift_planning.py")
-    if st.button("Vardiya Planlaması"): 
-        st.switch_page("pages/shift_types.py")
-    if st.button("Shift Kuralları"):
-        st.switch_page("pages/shift_rules.py")
-
 # Main dashboard
 col1, col2 = st.columns(2)
 
