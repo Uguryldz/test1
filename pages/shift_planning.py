@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from utils.shift_validator import ShiftValidator
 from utils.shift_optimizer import ShiftOptimizer
+from io import BytesIO
 
 st.title("Vardiya Planlama")
 
@@ -39,36 +40,58 @@ if st.button("Haftalık Vardiya Planı Oluştur"):
 if len(st.session_state.shifts) > 0:
     st.subheader("Vardiya Planı")
 
-    # Get employee names
-    employee_names = st.session_state.employees.set_index('id')['name'].to_dict()
+    # Get employee information
+    employees_info = st.session_state.employees.copy()
 
-    # Add employee names to shifts
-    display_shifts = st.session_state.shifts.copy()
-    display_shifts['Çalışan'] = display_shifts['employee_id'].map(employee_names)
+    # Create pivot table for shift display
+    pivot_data = st.session_state.shifts.copy()
+    pivot_data['Tarih'] = pd.to_datetime(pivot_data['date']).dt.strftime('%d/%m/%Y')
 
-    # Format for display
-    display_shifts['Tarih'] = pd.to_datetime(display_shifts['date']).dt.strftime('%Y-%m-%d')
-    display_shifts['Vardiya'] = display_shifts['shift_type']
+    # Merge with employee information
+    display_data = pivot_data.merge(
+        employees_info[['id', 'name', 'location', 'hire_date']],
+        left_on='employee_id',
+        right_on='id'
+    )
 
-    # Show shifts grouped by date
-    for date in sorted(display_shifts['Tarih'].unique()):
-        st.write(f"### {date}")
-        day_shifts = display_shifts[display_shifts['Tarih'] == date]
+    # Create pivot table
+    shift_table = pd.pivot_table(
+        display_data,
+        values='shift_type',
+        index=['name', 'hire_date', 'location'],
+        columns='Tarih',
+        aggfunc='first',
+        fill_value='OFF'
+    ).reset_index()
 
-        # Group by shift type
-        for shift_type in sorted(day_shifts['Vardiya'].unique()):
-            if shift_type != 'OFF':
-                shift_employees = day_shifts[day_shifts['Vardiya'] == shift_type]
-                st.write(f"**{shift_type}** ({len(shift_employees)} kişi)")
-                st.write(", ".join(shift_employees['Çalışan'].tolist()))
+    # Rename columns
+    shift_table.columns.name = None
+    shift_table = shift_table.rename(columns={
+        'name': 'İsim - Soyisim',
+        'hire_date': 'İşe Giriş',
+        'location': 'Yaka'
+    })
 
-        # Show OFF employees
-        off_employees = day_shifts[day_shifts['Vardiya'] == 'OFF']
-        if len(off_employees) > 0:
-            st.write("**OFF**")
-            st.write(", ".join(off_employees['Çalışan'].tolist()))
+    # Format dates
+    shift_table['İşe Giriş'] = pd.to_datetime(shift_table['İşe Giriş']).dt.strftime('%d/%m/%Y')
 
-        st.write("---")
+    # Display table
+    st.dataframe(shift_table, use_container_width=True)
+
+    # Excel download button
+    def to_excel(df):
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Vardiya_Plani')
+        return output.getvalue()
+
+    excel_data = to_excel(shift_table)
+    st.download_button(
+        label="Excel Olarak İndir",
+        data=excel_data,
+        file_name=f'vardiya_plani_{planning_date.strftime("%d_%m_%Y")}.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 else:
     st.info("Henüz vardiya planı oluşturulmamış.")
