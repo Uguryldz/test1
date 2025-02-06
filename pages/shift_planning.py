@@ -16,88 +16,59 @@ planning_date = st.date_input(
     min_value=datetime.now().date()
 )
 
-# Location selection
-location = st.selectbox("Lokasyon", ["Amasya", "İstanbul"])
+# Create weekly schedule button
+if st.button("Haftalık Vardiya Planı Oluştur"):
+    if len(st.session_state.employees) == 0:
+        st.error("Önce çalışan ekleyin!")
+    else:
+        # Convert date to datetime
+        start_datetime = datetime.combine(planning_date, datetime.min.time())
 
-# Get relevant employees
-location_employees = st.session_state.employees[
-    st.session_state.employees['location'] == location
-]
+        # Create weekly schedule
+        weekly_schedule = optimizer.create_weekly_schedule(
+            st.session_state.employees,
+            start_datetime
+        )
 
-# Shift planning interface
-st.subheader("Vardiya Ataması")
+        # Store in session state
+        st.session_state.shifts = weekly_schedule
 
-with st.form("shift_assignment"):
-    # Employee selection
-    employee_id = st.selectbox(
-        "Çalışan",
-        options=location_employees['id'].tolist(),
-        format_func=lambda x: location_employees[
-            location_employees['id'] == x
-        ]['name'].iloc[0]
-    )
-    
-    # Shift type selection based on location
-    shift_types = {
-        'Amasya': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
-        'İstanbul': ['08:00-17:00', '15:00-00:00']
-    }
-    
-    shift_type = st.selectbox(
-        "Vardiya Tipi",
-        options=shift_types[location]
-    )
-    
-    if st.form_submit_button("Vardiya Ekle"):
-        # Validate shift
-        employee = location_employees[
-            location_employees['id'] == employee_id
-        ].iloc[0]
-        
-        # Check special conditions
-        if employee['special_condition'] == 'Hamile' and shift_type != '09:00-18:00':
-            st.error("Hamile çalışanlar sadece 09:00-18:00 vardiyasında çalışabilir!")
-        else:
-            # Add shift if valid
-            new_shift = {
-                'employee_id': employee_id,
-                'date': planning_date,
-                'shift_type': shift_type,
-                'start_time': datetime.strptime(
-                    shift_type.split('-')[0],
-                    '%H:%M'
-                ).time(),
-                'end_time': datetime.strptime(
-                    shift_type.split('-')[1],
-                    '%H:%M'
-                ).time()
-            }
-            
-            st.session_state.shifts = pd.concat([
-                st.session_state.shifts,
-                pd.DataFrame([new_shift])
-            ], ignore_index=True)
-            
-            st.success("Vardiya başarıyla eklendi!")
+        st.success("Haftalık vardiya planı oluşturuldu!")
 
-# Display current shifts
-st.subheader("Mevcut Vardiyalar")
+# Display current schedule
 if len(st.session_state.shifts) > 0:
-    # Filter shifts for selected location
-    location_shifts = st.session_state.shifts.merge(
-        location_employees[['id', 'name']],
-        left_on='employee_id',
-        right_on='id'
-    )
-    st.dataframe(location_shifts)
+    st.subheader("Vardiya Planı")
+
+    # Get employee names
+    employee_names = st.session_state.employees.set_index('id')['name'].to_dict()
+
+    # Add employee names to shifts
+    display_shifts = st.session_state.shifts.copy()
+    display_shifts['Çalışan'] = display_shifts['employee_id'].map(employee_names)
+
+    # Format for display
+    display_shifts['Tarih'] = pd.to_datetime(display_shifts['date']).dt.strftime('%Y-%m-%d')
+    display_shifts['Vardiya'] = display_shifts['shift_type']
+
+    # Show shifts grouped by date
+    for date in sorted(display_shifts['Tarih'].unique()):
+        st.write(f"### {date}")
+        day_shifts = display_shifts[display_shifts['Tarih'] == date]
+
+        # Group by shift type
+        for shift_type in sorted(day_shifts['Vardiya'].unique()):
+            if shift_type != 'OFF':
+                shift_employees = day_shifts[day_shifts['Vardiya'] == shift_type]
+                st.write(f"**{shift_type}** ({len(shift_employees)} kişi)")
+                st.write(", ".join(shift_employees['Çalışan'].tolist()))
+
+        # Show OFF employees
+        off_employees = day_shifts[day_shifts['Vardiya'] == 'OFF']
+        if len(off_employees) > 0:
+            st.write("**OFF**")
+            st.write(", ".join(off_employees['Çalışan'].tolist()))
+
+        st.write("---")
+
 else:
     st.info("Henüz vardiya planı oluşturulmamış.")
-
-# Optimization tools
-if st.button("Vardiyaları Optimize Et"):
-    optimized_shifts = optimizer.optimize_service_routes(
-        st.session_state.employees,
-        st.session_state.shifts
-    )
-    st.session_state.shifts = optimized_shifts
-    st.success("Vardiyalar optimize edildi!")
