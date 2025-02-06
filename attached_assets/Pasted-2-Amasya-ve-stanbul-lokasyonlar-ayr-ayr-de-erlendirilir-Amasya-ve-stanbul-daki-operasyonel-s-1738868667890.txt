@@ -1,0 +1,88 @@
+2. Amasya ve İstanbul lokasyonları ayrı ayrı değerlendirilir.
+Amasya ve İstanbul’daki operasyonel süreçlerin farklı gereksinimleri olduğu için vardiya planlaması her iki lokasyon için ayrı değerlendirilmelidir. Lokasyon bazlı planlamanın doğru yapılabilmesi için aşağıdaki hususlar göz önünde bulundurulmalıdır:
+
+a) Lokasyon Bazlı Çalışan Kategorileri ve Yaka Bilgisi
+Her çalışanın bulunduğu konum ve çalışma şekli “Yaka” sütunu üzerinden belirlenmelidir.
+
+Amasya Lokasyonu:
+Amasya 1
+Amasya 2-A
+Amasya 2-B
+Amasya 3
+İstanbul Lokasyonu:
+Anadolu Yakası
+Avrupa Yakası
+b) Lokasyon Bazlı Operasyonel Farklılıklar
+Çağrı yoğunluğu saatleri farklılık gösterir:
+İstanbul'da çağrı yoğunluğu sabah ve akşam saatlerinde zirveye ulaşmaktadır.
+Amasya'da çağrılar daha dengeli dağılım göstermektedir.
+İstanbul'da vardiya düzenlemeleri müşteri trafiğine göre yapılmalıdır.
+Özellikle 08:00 - 17:00 vardiyasında çalışan sayısı artırılmalıdır.
+Amasya'da vardiyalar çalışan yoğunluğuna göre sabitlenmelidir.
+Sabah ve öğlen vardiyaları belirli sayıda çalışan içermelidir.
+Servis güzergahları lokasyon bazlı farklıdır:
+İstanbul’da servis güzergahı çalışanların yaşadığı bölgelere göre belirlenirken, Amasya’da tek güzergah üzerinden hizmet sağlanmaktadır.
+3. Amasya ve İstanbul’daki vardiya tipleri farklılıklar göstermektedir.
+İstanbul ve Amasya’da operasyonel süreçler, iş yükü ve çalışan sayısına göre farklı vardiya planları uygulanmaktadır.
+
+a) İstanbul Vardiya Tipleri ve Kurallar
+08:00 - 17:00 → Standart vardiya
+15:00 - 00:00 → Akşam vardiyası (Genellikle Home Office)
+00:00 - 08:00 → Gece vardiyası (Minimum 3 kişi gereklidir)
+Hafta Sonu Kuralları:
+Cumartesi ve Pazar günleri çalışanlar Home Office olarak çalışacaktır.
+Pazar günü İstanbul’da vardiya olmayacaktır (Tüm çalışanlar OFF).
+Servis Kullanımı:
+08:00 - 17:00 vardiyası için Anadolu ve Avrupa fark etmeksizin servis sağlanmaktadır.
+15:00 - 00:00 vardiyaları için Home Office modeli uygulanmaktadır.
+Gece vardiyası çalışanları için eve dönüş servisi bulunmaktadır.
+b) Amasya Vardiya Tipleri ve Kurallar
+08:00 - 17:00 → Standart vardiya
+09:00 - 18:00 → Alternatif gündüz vardiyası
+11:00 - 22:00 → Geç gündüz vardiyası
+Servis Kullanımı:
+20:00'den sonra çıkış yapan çalışanlar için servis sağlanmaktadır.
+20:00’den önce servis hizmeti bulunmamaktadır.
+Minimum Çalışan Gereksinimleri:
+Sabah vardiyası için en az 3-4 kişi bulunmalıdır.
+Çakışan vardiya sayısı günlük maksimum 45 olmalıdır.
+c) Gece Vardiyası için Özel Kurallar
+Gece vardiyası genellikle tercih edilmediğinden, özel bir planlama gerektirir.
+Minimum 3 kişi bulunmalıdır ve bunlardan en az biri İstanbul lokasyonundan olmalıdır.
+Döngüsel sistem uygulanmalıdır:
+Gece vardiyasına giren çalışan, en az iki hafta boyunca tekrar gece vardiyasına yazılmamalıdır.
+Özel durumu olan çalışanlar (hamile, engelli vb.) gece vardiyasına yazılmamalıdır.
+4. Home Office Çalışma Kuralları
+Home Office çalışma modeli belirli vardiyalar ve günler için uygulanmaktadır.
+
+İstanbul'da Hafta Sonu Home Office:
+Cumartesi ve Pazar günleri tüm vardiyalar Home Office olarak çalışacaktır.
+Pazar günü İstanbul’da çalışma olmayacaktır.
+Akşam Vardiyası Home Office:
+İstanbul'daki 15:00 - 00:00 vardiyası genellikle Home Office olarak çalıştırılacaktır.
+Home Office Çalışan Kontrol Mekanizması:
+Çalışanların belirlenen saatlerde giriş yapması zorunludur.
+Home Office vardiyalarında anlık takip mekanizmaları uygulanacaktır.
+5. Çalışan Dağılımı ve Vardiya Optimizasyonu
+a) Lokasyon ve Gün Bazlı Çalışan Sayısı Dağılımı
+İstanbul Sabah Vardiyası:
+En az 10 çalışan
+İstanbul Akşam Vardiyası:
+5-7 çalışan yeterlidir (Home Office).
+Amasya Sabah Vardiyası:
+3-4 çalışan gereklidir.
+Amasya Öğlen Vardiyası:
+Yoğunluk durumuna göre belirlenmelidir.
+b) Çakışma ve Maksimum Çalışan Sayısı
+Günlük maksimum 45 çalışan aynı vardiyada bulunabilir.
+Vardiya çakışmaları en fazla 2 saatlik bir zaman diliminde gerçekleşebilir.
+6. Servis Kullanım Kuralları
+Servisler yalnızca belirli vardiyalar için sağlanmaktadır.
+
+a) İstanbul Servis Kuralları
+08:00 - 17:00 vardiyası için Anadolu ve Avrupa fark etmeksizin servis sağlanmaktadır.
+15:00 - 00:00 vardiyaları için Home Office modeli uygulanmaktadır.
+Gece vardiyası çalışanları için eve dönüş servisi bulunmaktadır.
+b) Amasya Servis Kuralları
+20:00’den önce servis hizmeti bulunmamaktadır.
+20:00 sonrası çalışanlar için servis sağlanmaktadır.

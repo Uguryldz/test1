@@ -3,20 +3,24 @@ import numpy as np
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from collections import defaultdict
+from utils.config import SHIFT_CONFIG, SPECIAL_CONDITIONS, SERVICE_RULES
 
 class AdvancedShiftOptimizer:
     def __init__(self):
         self.shift_counts = defaultdict(lambda: defaultdict(int))  # Çalışan bazlı vardiya sayaçları
         self.location_groups = defaultdict(list)  # Yaka bazlı çalışan grupları
+        self.config = SHIFT_CONFIG
 
+        # Vardiya gereksinimleri - configden al
         self.shift_requirements = {
-            '08:00-17:00': 4,
-            '09:00-18:00': 7,
-            '11:00-22:00': 9,
-            '15:00-00:00': 6,
-            '00:00-08:00': 2
+            '08:00-17:00': self.config['min_staff']['morning'],
+            '09:00-18:00': self.config['min_staff']['afternoon'],
+            '11:00-22:00': self.config['min_staff']['evening'],
+            '15:00-00:00': self.config['min_staff']['evening'],
+            '00:00-08:00': self.config['min_staff']['night']
         }
 
+        # Lokasyon bazlı vardiyalar
         self.location_shifts = {
             'Amasya-1': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
             'Amasya 2-A': ['08:00-17:00', '09:00-18:00', '11:00-22:00'],
@@ -53,23 +57,62 @@ class AdvancedShiftOptimizer:
             employee['location'],
             current_shift_employees
         )
-        score += location_score * 0.4
+        score += location_score * 0.3
 
         # Vardiya dağılımı dengesi skoru
         distribution_score = self._calculate_distribution_score(
             employee['id'],
             shift_type
         )
-        score += distribution_score * 0.4
+        score += distribution_score * 0.3
 
-        # İş yükü dengesi skoru
-        workload_score = self._calculate_workload_score(
-            employee['id'],
-            current_schedule
+        # Servis optimizasyonu skoru
+        service_score = self._calculate_service_score(
+            employee['location'],
+            shift_type,
+            current_shift_employees
         )
-        score += workload_score * 0.2
+        score += service_score * 0.2
+
+        # Peak saat optimizasyonu
+        peak_score = self._calculate_peak_hour_score(
+            employee['location'],
+            shift_type,
+            date
+        )
+        score += peak_score * 0.2
 
         return score
+
+    def _calculate_service_score(self, location: str, shift_type: str, 
+                               current_employees: List[int]) -> float:
+        """
+        Servis optimizasyonu için skor hesapla
+        """
+        if location.startswith('Amasya'):
+            shift_hour = int(shift_type.split(':')[0])
+            # 20:00 sonrası vardiyalar için aynı güzergahtan çalışanları grupla
+            if shift_hour >= 20 or (shift_hour + int(shift_type.split('-')[1].split(':')[0])) >= 20:
+                return self._calculate_location_group_score(None, location, current_employees)
+        return 1.0
+
+    def _calculate_peak_hour_score(self, location: str, shift_type: str, date: datetime) -> float:
+        """
+        Peak saatlere göre skor hesapla
+        """
+        shift_start = datetime.strptime(shift_type.split('-')[0], '%H:%M').time()
+
+        if location.startswith('Amasya'):
+            peak_hours = self.config['peak_hours']['Amasya']['all_day']
+        else:
+            morning_peak = self.config['peak_hours']['Istanbul']['morning']
+            evening_peak = self.config['peak_hours']['Istanbul']['evening']
+
+            # Peak saatlerde daha yüksek skor
+            if (morning_peak[0] <= shift_type <= morning_peak[1] or 
+                evening_peak[0] <= shift_type <= evening_peak[1]):
+                return 1.0
+        return 0.5
 
     def _calculate_location_group_score(self, employee_id: int, location: str, 
                                      current_employees: List[int]) -> float:
@@ -122,10 +165,12 @@ class AdvancedShiftOptimizer:
         self.initialize_groups(employees_df)
         schedule = []
 
+        # Her gün için
         for day_offset in range(7):
             current_date = start_date + timedelta(days=day_offset)
+            daily_shifts = []
 
-            # Her vardiya tipi için optimizasyon yap
+            # Her vardiya tipi için optimizasyon
             for shift_type, required_count in self.shift_requirements.items():
                 selected_employees = []
 
@@ -133,8 +178,13 @@ class AdvancedShiftOptimizer:
                     best_score = -float('inf')
                     best_employee = None
 
+                    # En uygun çalışanı seç
                     for _, employee in employees_df.iterrows():
                         if employee['id'] not in selected_employees:
+                            # Günlük çakışma kontrolü
+                            if len(daily_shifts) >= self.config['max_values']['daily_overlapping_shifts']:
+                                continue
+
                             score = self.calculate_shift_score(
                                 employee,
                                 shift_type,
@@ -152,6 +202,7 @@ class AdvancedShiftOptimizer:
 
                     selected_employees.append(best_employee)
                     self.shift_counts[best_employee][shift_type] += 1
+                    daily_shifts.append(best_employee)
 
                 # Seçilen çalışanları vardiyaya ata
                 for emp_id in selected_employees:
@@ -170,13 +221,21 @@ class AdvancedShiftOptimizer:
         Vardiya kısıtlamalarını kontrol et
         """
         # Özel durum kontrolleri
-        if employee['special_condition'] == 'Hamile':
-            return shift_type == '09:00-18:00'
-        elif employee['special_condition'] == 'Engelli':
-            return shift_type in ['08:00-17:00', '09:00-18:00']
+        if employee['special_condition'] in SPECIAL_CONDITIONS:
+            conditions = SPECIAL_CONDITIONS[employee['special_condition']]
+            if shift_type not in conditions['allowed_shifts']:
+                return False
+            if conditions.get('no_night_shifts') and '00:00' in shift_type:
+                return False
 
         # Lokasyon kontrolleri
         if employee['location'] in self.location_shifts:
+            # Servis kısıtlamaları
+            if employee['location'].startswith('Amasya'):
+                shift_hour = int(shift_type.split(':')[0])
+                if shift_hour < 20 and not SERVICE_RULES['Amasya']['morning_service']:
+                    # 20:00 öncesi servis yoksa sadece belirli vardiyalar
+                    return shift_type in ['08:00-17:00', '09:00-18:00']
             return shift_type in self.location_shifts[employee['location']]
 
         return False
@@ -198,7 +257,7 @@ class AdvancedShiftOptimizer:
             if shift['end_time']:
                 shift_end_dt = datetime.combine(shift['date'], shift['end_time'])
                 hours_diff = abs((new_start_dt - shift_end_dt).total_seconds() / 3600)
-                if hours_diff < 11:
+                if hours_diff < self.config['min_hours_between_shifts']:
                     return False
         return True
 
